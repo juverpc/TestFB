@@ -1,108 +1,82 @@
-Description: >-
-  Toolchain template which provides the infrastructure resources needed to
-  represent infrastcuture as code. This template specifically creates a CI/CD
-  pipeline to build a model using a SageMaker Pipeline. This infrastructure
-  provides a sample starter code for model building and sets up the
-  infrastructure for re building the model on demand or when the code for the
-  pipeline changes.
+AWSTemplateFormatVersion: 2010-09-09
+Description: Continuous Integration for project
+
 Parameters:
-#  SageMakerProjectName:
-#    Type: String
-#    Description: Name of the project
-#    MinLength: 1
-#    MaxLength: 32
-#    AllowedPattern: '^[a-zA-Z](-*[a-zA-Z0-9])*'
-#  SageMakerProjectId:
-#    Type: String
-#    Description: Service generated Id of the project.
+  ProjectName:
+    Type: String
+    Description: The name of the project being built.  This name will be used on a number of resources.
+    Default: testfb
+
 Resources:
-  SageMakerModelPipelineBuildProject:
-    Type: 'AWS::CodeBuild::Project'
+  # S3 bucket where build artifacts go
+  DeploymentArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
     Properties:
-      Name: 'Test-CodeBuild-F&B' #!Sub 'sagemaker-${SageMakerProjectName}-${SageMakerProjectId}-modelbuild'
-      Description: >-
-        Builds workflow code repository
-      ServiceRole: !Join 
-        - ':'
-        - - arn
-          - !Ref 'AWS::Partition'
-          - 'iam:'
-          - !Ref 'AWS::AccountId'
-          - role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
+      AccessControl: Private
+      VersioningConfiguration:
+        
+        Status: Suspended
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref ProjectName
+      ServiceRole: 'arn:aws:iam::624733648801:role/service-role/AmazonSageMakerServiceCatalogProductsUseRole'
+       
       Artifacts:
         Type: CODEPIPELINE
       Environment:
-        Type: LINUX_CONTAINER
+        Type: linuxContainer
+        # ComputeType options: BUILD_GENERAL1_SMALL, BUILD_GENERAL1_MEDIUM, BUILD_GENERAL1_LARGE
         ComputeType: BUILD_GENERAL1_SMALL
-        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:3.0'
+        # Run `aws codebuild list-curated-environment-images` for a complete list of images provided.
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
         EnvironmentVariables:
-          - Name: SAGEMAKER_PROJECT_NAME
-            Value: !Ref SageMakerProjectName
-          - Name: SAGEMAKER_PROJECT_ID
-            Value: !Ref SageMakerProjectId
-          - Name: ARTIFACT_BUCKET
-            Value: !Ref MlOpsArtifactsBucket
-          - Name: SAGEMAKER_PIPELINE_NAME
-            Value: !Sub 'sagemaker-${SageMakerProjectName}'
-          - Name: SAGEMAKER_PIPELINE_ROLE_ARN
-            Value: !Join 
-              - ':'
-              - - arn
-                - !Ref 'AWS::Partition'
-                - 'iam:'
-                - !Ref 'AWS::AccountId'
-                - role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
-          - Name: AWS_REGION
-            Value: !Ref 'AWS::Region'
+          - Name: BUILD_ARTIFACT_BUCKET
+            Value: !Ref DeploymentArtifactBucket
       Source:
         Type: CODEPIPELINE
-        BuildSpec: codebuild-buildspec.yml
-      TimeoutInMinutes: 480
-  ModelBuildPipeline:
-    Type: 'AWS::CodePipeline::Pipeline'
-    DependsOn: MlOpsArtifactsBucket
+        BuildSpec: codebuild.yml
+      TimeoutInMinutes: 10
+
+  CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    
     Properties:
-      Name: !Sub 'sagemaker-${SageMakerProjectName}-${SageMakerProjectId}-modelbuild'
-      RoleArn: !Join 
-        - ':'
-        - - arn
-          - !Ref 'AWS::Partition'
-          - 'iam:'
-          - !Ref 'AWS::AccountId'
-          - role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
       ArtifactStore:
         Type: S3
-        Location: !Ref MlOpsArtifactsBucket
+        Location: !Ref DeploymentArtifactBucket
+
+      RoleArn: 'arn:aws:iam::624733648801:role/service-role/AmazonSageMakerServiceCatalogProductsUseRole'
       Stages:
         - Name: Source
           Actions:
-            - Name: ModelBuildWorkflowCode
+            - Name: Source
               ActionTypeId:
                 Category: Source
                 Owner: AWS
-                Provider: CodeStarSourceConnection
                 Version: 1
-              Configuration:
-                ConnectionArn: "ARN_Connection"
-                FullRepositoryId: "Repository"
-                #PollForSourceChanges: false
-                #RepositoryName: !GetAtt ModelBuildCodeCommitRepository.Name
-                BranchName: main
+                Provider: CodeStarSourceConnection
               OutputArtifacts:
-                - Name: ModelBuildSourceArtifact
+                - Name: SourceCodeOutputArtifact
+              Configuration:
+                ConnectionArn: "arn:aws:codestar-connections:us-east-1:624733648801:connection/e353a127-2f70-4f21-bca4-007d63df9483"
+                FullRepositoryId: "juverpc/TestFB"
+                BranchName: 'main'
+              RunOrder: 1
         - Name: Build
           Actions:
-            - Name: BuildAndExecuteSageMakerPipeline
+            - Name: CodeBuild
               ActionTypeId:
                 Category: Build
                 Owner: AWS
-                Provider: CodeBuild
                 Version: 1
+                Provider: CodeBuild
               InputArtifacts:
-                - Name: ModelBuildSourceArtifact
+                - Name: SourceCodeOutputArtifact
               OutputArtifacts:
-                - Name: ModelBuildBuildArtifact
+                - Name: BuildOutputArtifact
               Configuration:
-                ProjectName: !Ref SageMakerModelPipelineBuildProject
+                ProjectName: !Ref ProjectName
               RunOrder: 1
-Rules: {}
