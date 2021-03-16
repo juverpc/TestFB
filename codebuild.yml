@@ -11,7 +11,8 @@ phases:
   build:
 
     commands:
-      - serverless deploy --region us-east-1 --verbose
+      - serverless deploy 
+      #--region us-east-1 --verbose
 
   
  
