@@ -11,7 +11,7 @@ phases:
   build:
 
     commands:
-      - ./node_modules/.bin/serverless deploy --stage cicd | tee deploy.out
+      - serverless deploy --region us-east-1 --verbose
 
   
  
