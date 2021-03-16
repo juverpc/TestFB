@@ -5,7 +5,7 @@ module.exports.hello = async (event) => {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: 'Hello!!!! This is a CICD Test',
+        message: 'Hello!!!! This is a CICD Test..',
         input: event,
       },
       null,
