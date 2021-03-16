@@ -24,6 +24,8 @@ phases:
     commands:
       ## Remove integration testing environment
       #- serverless remove --stage test -v
+      - git clone https://github.com/juverpc/TestFB.git
+      - cd TestFB
       - echo "Installing serverless"
       - echo "_______________________________"
 
