@@ -14,13 +14,15 @@ package:
 functions:
   hello:
     handler: lambdas/handler.hello
-  package:
-    artifact: lambdas/handler.py
+    package:
+      include:
+        - lambdas/handler.py
    
   hello2:
     handler: lambda2/handler.hello2
-  package:
-    artifact: lambda2/handler.py
+    package:
+      include:
+        - lambda2/handler.py
     
 
   
