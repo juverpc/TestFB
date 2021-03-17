@@ -10,10 +10,5 @@ provider:
 functions:
   hello:
     handler: handler.hello
-     package:
-      exclude:
-        - /README.md
-        - /codebuild.yml
-        - /policy.json
-        - /template_F&B.yml
+     
 
