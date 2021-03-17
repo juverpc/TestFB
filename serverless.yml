@@ -9,9 +9,7 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
-    package:
-      exclude:
-        - lambda2/**
+    handler: lambdas/handler.hello
+  
      
 
