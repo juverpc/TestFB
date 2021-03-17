@@ -12,8 +12,8 @@ functions:
     handler: handler.hello
      package:
       exclude:
-        - /codebuild/output/src616022190/src/README.md
-        - /codebuild/output/src616022190/src/codebuild.yml
-        - /codebuild/output/src616022190/src/policy.json
-        - /codebuild/output/src616022190/src/template_F&B.yml
+        - ./README.md
+        - ./codebuild.yml
+        - ./policy.json
+        - ./template_F&B.yml
 
