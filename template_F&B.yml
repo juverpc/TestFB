@@ -8,11 +8,10 @@ Parameters:
     Default: testfb
 
 Resources:
-CodeBuildRole:
+ CodeBuildRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName:
-        'Fn::Join': [ "", ["CodeBuildRole", "-", !Ref 'AWS::StackName']]
+      RoleName: 'TestFB-Role-CodeBuild'       
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -21,11 +20,10 @@ CodeBuildRole:
             Service: "codebuild.amazonaws.com"
           Action: "sts:AssumeRole"
 
-  CodePipelineRole:
+ CodePipelineRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName:
-        'Fn::Join': [ "", ["CodePipelineRole", "-", !Ref 'AWS::StackName']]
+      RoleName: 'TestFB-Role-CodePipeline'
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -35,11 +33,10 @@ CodeBuildRole:
           Action: "sts:AssumeRole"
 
   # This can be restricted more
-  CodeBuildPolicy:
+ CodeBuildPolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName:
-        'Fn::Join': [ "", ["CodeBuildPolicy", "-", !Ref 'AWS::StackName']]
+      PolicyName: 'TestFB-Policy-CodeBuild'
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -97,33 +94,45 @@ CodeBuildRole:
             - 'events:Remove*'
             - 'events:Delete*'
             - 'dynamodb:*'
+            - s3:GetEncryptionConfiguration
+            - s3:PutEncryptionConfiguration
+            - s3:PutBucketPolicy
+            - s3:DeleteBucketPolicy
           Resource: "*"
       Roles:
         -  !Ref CodeBuildRole
 
-  CodePipelinePolicy:
+ CodePipelinePolicy:
     Type: "AWS::IAM::Policy"
     Properties:
-      PolicyName:
-        'Fn::Join': [ "", ["CodePipelinePolicy", "-", !Ref 'AWS::StackName']]
+      PolicyName: 'TestFB-Policy-CodePipeline'
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
           Effect: Allow
           Action:
+            - s3:*
             - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
             - s3:putObject
             - s3:getObject
             - codebuild:*
+            - codestar-connections:CreateConnection
+            - codestar-connections:ListTagsForResource
+            - codestar-connections:UseConnection
+            - codestar-connections:UntagResource
+            - codestar-connections:DeleteConnection
+            - codestar-connections:TagResource
+            - codestar-connections:GetConnection
+            - codestar-connections:ListConnections
           Resource:
             - "*"
       Roles:
         -  !Ref CodePipelineRole
 
   # S3 bucket where build artifacts go
-  DeploymentArtifactBucket:
+ DeploymentArtifactBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     Properties:
@@ -132,7 +141,7 @@ CodeBuildRole:
         
         Status: Suspended
 
-  CodeBuildProject:
+ CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: !Ref ProjectName
@@ -154,7 +163,7 @@ CodeBuildRole:
         BuildSpec: codebuild.yml
       TimeoutInMinutes: 10
 
-  CodePipeline:
+ CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     
     Properties:
