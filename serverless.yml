@@ -7,9 +7,17 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: 20201221
 
+package:
+  # include:
+  #  - include-me.py
+   # - include-me-dir/**
+  exclude:
+    - lambda2/** # exclude
 functions:
   hello:
     handler: lambdas/handler.hello
+    
+
   
      
 
