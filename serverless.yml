@@ -10,19 +10,21 @@ provider:
 
 package:
   individually: true
+  exclude:
+    - "**"
   
 functions:
   hello:
     handler: lambdas/handler.hello
     package:
-      exclude:
-        - lambda2/handler.py
+      include:
+        - lambdas/handler.py
    
   hello2:
     handler: lambda2/handler.hello2
     package:
-      exclude:
-        - lambdas/handler.py
+      include:
+        - lambda2/handler.py
 
   
      
