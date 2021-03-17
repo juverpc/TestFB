@@ -24,6 +24,7 @@ functions:
           rules:
             - prefix: lambdas/
             - suffix: "*"
+          existing: true
     package:
       include:
         - lambdas/handler.py
