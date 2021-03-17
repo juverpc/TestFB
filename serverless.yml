@@ -14,28 +14,12 @@ package:
 functions:
   hello:
     handler: lambdas/handler.hello
-    events:
-      - s3:
-          bucket: codebuildjuver
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: uploads/
-            - suffix: .zip
-          existing: true
     package:
       exclude:
         - lambda2/handler.py
    
   hello2:
     handler: lambda2/handler.hello2
-    events:
-      - s3:
-          bucket: codebuildjuver
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: uploads/
-            - suffix: .zip
-          existing: true
     package:
       exclude:
         - lambdas/handler.py
