@@ -5,20 +5,12 @@ phases:
   install:
 
     commands:
-
       - npm install
-
       - npm install -g serverless
 
   build:
 
     commands:
-
-      - ./node_modules/.bin/serverless deploy --stage cicd | tee deploy.out
-
-  post_build:
-
-    commands:
-
-      - . ./test.sh
+      - serverless deploy 
+      #--region us-east-1 --verbose
  
