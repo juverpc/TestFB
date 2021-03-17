@@ -13,8 +13,9 @@ package:
 functions:
   hello:
     handler: lambdas/handler.hello
-  package:
-    include: lambdas/handler.py
+    package:
+      include: 
+        - lambdas/**
     
 
   
