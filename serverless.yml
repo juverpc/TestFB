@@ -10,4 +10,10 @@ provider:
 functions:
   hello:
     handler: handler.hello
+     package:
+      exclude:
+        - TestFB/README.md
+        - TestFB/codebuild.yml
+        - TestFB/policy.json
+        - TestFB/template_F&B.yml
 
