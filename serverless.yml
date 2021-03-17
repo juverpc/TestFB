@@ -16,14 +16,6 @@ package:
 functions:
   hello:
     handler: lambdas/handler.hello
-    events:
-      - s3:
-          bucket: codebuildjuver
-          event: s3:ObjectCreated:*
-          rules:
-            - prefix: uploads/
-            - suffix: .zip
-          existing: true
     package:
       include:
         - lambdas/handler.py
