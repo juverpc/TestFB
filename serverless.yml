@@ -8,14 +8,13 @@ provider:
   lambdaHashingVersion: 20201221
 
 package:
-  # include:
-  #  - include-me.py
-   # - include-me-dir/**
-  exclude:
-    - lambda2/** # exclude
+  individually: true
+  
 functions:
   hello:
     handler: lambdas/handler.hello
+  package:
+    include: lambdas/handler.py
     
 
   
