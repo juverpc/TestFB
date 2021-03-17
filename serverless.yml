@@ -15,12 +15,12 @@ functions:
   hello:
     handler: lambdas/handler.hello
     package:
-      artifact: lambdas/handler.py
+      artifact: lambdas/**
    
   hello2:
     handler: lambda2/handler.hello2
     package:
-      artifact: lambda2/handler.py
+      artifact: lambda2/**
     
 
   
