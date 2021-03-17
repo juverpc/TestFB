@@ -7,6 +7,7 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: 20201221
   role: arn:aws:iam::624733648801:role/Role-serverless-function
+  
 
 package:
   individually: true
@@ -16,6 +17,9 @@ package:
 functions:
   hello:
     handler: lambdas/handler.hello
+    events:
+      - s3:
+          Bucket: arn:aws:s3:::codebuildjuver
     package:
       include:
         - lambdas/handler.py
