@@ -15,19 +15,14 @@ functions:
   hello:
     handler: lambdas/handler.hello
     package:
-      include:
-        - lambdas/handler.py
       exclude:
-        - *
+        - lambda2/handler.py
    
   hello2:
     handler: lambda2/handler.hello2
     package:
-      include:
-        - lambdas/handler.py
       exclude:
-        - *
-    
+        - lambdas/handler.py
 
   
      
