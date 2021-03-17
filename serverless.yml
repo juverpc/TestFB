@@ -20,6 +20,7 @@ functions:
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
+            - suffix: .zip
           existing: true
     package:
       exclude:
@@ -33,6 +34,7 @@ functions:
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
+            - suffix: .zip
           existing: true
     package:
       exclude:
