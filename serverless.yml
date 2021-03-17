@@ -10,5 +10,8 @@ provider:
 functions:
   hello:
     handler: handler.hello
+    package:
+      exclude:
+        - lambda2/**
      
 
