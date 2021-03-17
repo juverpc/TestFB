@@ -18,7 +18,7 @@ functions:
       include:
         - lambdas/handler.py
       exclude:
-        - /**
+        - **
    
   hello2:
     handler: lambda2/handler.hello2
@@ -26,7 +26,7 @@ functions:
       include:
         - lambdas/handler.py
       exclude:
-        - /**
+        - **
     
 
   
