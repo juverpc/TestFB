@@ -1,0 +1,205 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Continuous Integration for project
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of the project being built.  This name will be used on a number of resources.
+    Default: testfb
+
+Resources:
+ CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: 'TestFB-Role-CodeBuild'       
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: "Allow"
+          Principal:
+            Service: "codebuild.amazonaws.com"
+          Action: "sts:AssumeRole"
+
+ CodePipelineRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: 'TestFB-Role-CodePipeline'
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: "Allow"
+          Principal:
+            Service: "codepipeline.amazonaws.com"
+          Action: "sts:AssumeRole"
+
+  # This can be restricted more
+ CodeBuildPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: 'TestFB-Policy-CodeBuild'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:DescribeLogGroups
+            - logs:FilterLogEvents
+            - logs:DescribeLogStreams
+            - logs:DeleteLogGroup
+            - s3:putObject
+            - s3:getObject
+            - codebuild:*
+            - 'cloudformation:List*'
+            - 'cloudformation:Get*'
+            - 'cloudformation:PreviewStackUpdate'
+            - 'cloudformation:ValidateTemplate'
+            - 'cloudformation:CreateStack'
+            - 'cloudformation:CreateUploadBucket'
+            - 'cloudformation:DeleteStack'
+            - 'cloudformation:Describe*'
+            - 'cloudformation:UpdateStack'
+            - 'lambda:Get*'
+            - 'lambda:List*'
+            - 'lambda:CreateFunction'
+            - 'lambda:AddPermission'
+            - 'lambda:CreateAlias'
+            - 'lambda:DeleteFunction'
+            - 'lambda:InvokeFunction'
+            - 'lambda:PublishVersion'
+            - 'lambda:RemovePermission'
+            - 'lambda:Update*'
+            - 'apigateway:GET'
+            - 'apigateway:POST'
+            - 'apigateway:PUT'
+            - 'apigateway:DELETE'
+            - 's3:CreateBucket'
+            - 's3:DeleteBucket'
+            - 's3:ListBucket'
+            - 's3:ListBucketVersions'
+            - 's3:PutObject'
+            - 's3:GetObject'
+            - 's3:DeleteObject'
+            - 'iam:PassRole'
+            - 'kinesis:*'
+            - 'iam:GetRole'
+            - 'iam:CreateRole'
+            - 'iam:PutRolePolicy'
+            - 'iam:DeleteRolePolicy'
+            - 'iam:DeleteRole'
+            - 'cloudwatch:GetMetricStatistics'
+            - 'events:Put*'
+            - 'events:Remove*'
+            - 'events:Delete*'
+            - 'dynamodb:*'
+            - s3:GetEncryptionConfiguration
+            - s3:PutEncryptionConfiguration
+            - s3:PutBucketPolicy
+            - s3:DeleteBucketPolicy
+          Resource: "*"
+      Roles:
+        -  !Ref CodeBuildRole
+
+ CodePipelinePolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: 'TestFB-Policy-CodePipeline'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          Effect: Allow
+          Action:
+            - s3:*
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - s3:putObject
+            - s3:getObject
+            - codebuild:*
+            - codestar-connections:CreateConnection
+            - codestar-connections:ListTagsForResource
+            - codestar-connections:UseConnection
+            - codestar-connections:UntagResource
+            - codestar-connections:DeleteConnection
+            - codestar-connections:TagResource
+            - codestar-connections:GetConnection
+            - codestar-connections:ListConnections
+          Resource:
+            - "*"
+      Roles:
+        -  !Ref CodePipelineRole
+
+  # S3 bucket where build artifacts go
+ DeploymentArtifactBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      AccessControl: Private
+      VersioningConfiguration:
+        
+        Status: Suspended
+
+ CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Ref ProjectName
+      ServiceRole: !Ref CodeBuildRole
+       
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: linuxContainer
+        # ComputeType options: BUILD_GENERAL1_SMALL, BUILD_GENERAL1_MEDIUM, BUILD_GENERAL1_LARGE
+        ComputeType: BUILD_GENERAL1_SMALL
+        # Run `aws codebuild list-curated-environment-images` for a complete list of images provided.
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        EnvironmentVariables:
+          - Name: BUILD_ARTIFACT_BUCKET
+            Value: !Ref DeploymentArtifactBucket
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: codebuild.yml
+      TimeoutInMinutes: 10
+
+ CodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref DeploymentArtifactBucket
+
+      RoleArn: !Join [ "", ["arn:aws:iam::", !Ref "AWS::AccountId", ":role/", !Ref CodePipelineRole  ] ]
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeStarSourceConnection
+              OutputArtifacts:
+                - Name: SourceCodeOutputArtifact
+              Configuration:
+                ConnectionArn: "arn:aws:codestar-connections:us-east-1:624733648801:connection/e353a127-2f70-4f21-bca4-007d63df9483"
+                FullRepositoryId: "juverpc/TestFB"
+                BranchName: 'main'
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: CodeBuild
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              InputArtifacts:
+                - Name: SourceCodeOutputArtifact
+              OutputArtifacts:
+                - Name: BuildOutputArtifact
+              Configuration:
+                ProjectName: !Ref ProjectName
+              RunOrder: 1
