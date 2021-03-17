@@ -1,7 +1,7 @@
 import json
 
 
-def hello(event, context):
+def hello2(event, context):
     body = {
         "message": "LAMBDA 2!",
         "input": event
