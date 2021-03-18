@@ -13,28 +13,38 @@ package:
   individually: true
   exclude:
     - "**"
-  
+    
 functions:
-  hello:
-    handler: lambdas/handler.hello
-#    events:
-#      - s3:
-#          bucket: codebuildjuver
-#          event: s3:ObjectCreated:*
-#          rules:
-#            - prefix: lambdas/
-#            - suffix: "*"
-#          existing: true
+  inference:
+    handler: lambdas/lambda_orchest.inference
+    events:
+      - http:
+          path: /inference
+          method: get
     package:
       include:
-        - lambdas/handler.py
-   
-  hello2:
-    handler: lambda2/handler.hello2
+        - lambdas/lambda_orchest.py
+          
+  lambda-01:
+    handler: lambdas/lambda_01.greetings
     package:
       include:
-        - lambda2/handler.py
-        
-  
-     
+        - lambdas/lambda_01.py
 
+  lambda-02:
+    handler: lambdas/lambda_02.greetings
+    package:
+      include:
+        - lambdas/lambda_02.py
+
+  lambda-03:
+    handler: lambdas/lambda_03.greetings
+    package:
+      include:
+        - lambdas/lambda_03.py
+
+  lambda-04:
+    handler: lambdas/lambda_04.greetings
+    package:
+      include:
+        - lambdas/lambda_04.py
