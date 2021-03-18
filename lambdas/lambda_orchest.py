@@ -8,7 +8,7 @@ def inference(event, context):
     lambda_client = boto3.client('lambda', region_name='us-east-1')
     funcs = lambda_client.list_functions()
 
-    arns = [f["FunctionArn"] for f in funcs['Functions'] if bool(re.match(r'.*fnb.*lambda-0', f["FunctionArn"]))]
+    arns = [f["FunctionArn"] for f in funcs['Functions'] if bool(re.match(r'.*second-test.*lambda-0', f["FunctionArn"]))]
     lambda_choice = random.choice(arns)
 
     print(lambda_choice)
