@@ -3,7 +3,7 @@ import json
 
 def greetings(event, context):
     body = {
-        "message": "This is the output of lambda 02",
+        "message": "This is the output of lambda 02!!!",
         "input": event
     }
 
