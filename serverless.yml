@@ -12,7 +12,6 @@ provider:
     serverSideEncryption: AES256
   #deploymentPrefix: serverless/example
   
-
 plugins:
   - serverless-deployment-bucket
 
