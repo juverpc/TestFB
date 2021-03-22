@@ -7,7 +7,13 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: 20201221
   role: arn:aws:iam::624733648801:role/Role-serverless-function
-  
+  deploymentBucket:
+    name: example-dse-bucket
+    serverSideEncryption: AES256
+  #deploymentPrefix: serverless/example
+
+plugins:
+  - serverless-deployment-bucket
 
 package:
   individually: true
