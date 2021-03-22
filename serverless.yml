@@ -8,7 +8,7 @@ provider:
   lambdaHashingVersion: 20201221
   role: arn:aws:iam::624733648801:role/Role-serverless-function
   deploymentBucket:
-    name: example-dse-bucket
+    name: codebuildjuver
     serverSideEncryption: AES256
   #deploymentPrefix: serverless/example
 
