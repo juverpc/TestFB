@@ -29,7 +29,11 @@ functions:
       - http:
           path: /inference
           method: get
-               
+          
+    package:
+      include:
+        - lambdas/lambda_orchest.py
+        
   lambda-01:
     handler: lambdas/lambda_01.greetings
     package:
@@ -73,9 +77,9 @@ functions:
 resources:
   Resources:
     exampleServerlessQueue:
-      Type: "AWS::SQS::Queue"
+      Type: AWS::SQS::Queue
       Properties:
-        QueueName: "exampleServerlessQueueTest"
+        QueueName: exampleServerlessQueueTest
     exampleServerlessTopic:
       Type: AWS::SNS::Topic
       Properties:
