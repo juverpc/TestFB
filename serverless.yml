@@ -1,4 +1,4 @@
-service: example    ## Must be name of the of project. Lamba Fn names will be prefixed with this value. 
+service: example    # Must be name of the of project. Lamba Fn names will be prefixed with this value. 
 
 frameworkVersion: '2'
 
