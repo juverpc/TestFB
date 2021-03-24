@@ -1,4 +1,4 @@
-service: second-test
+service: example
 
 frameworkVersion: '2'
 
