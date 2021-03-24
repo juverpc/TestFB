@@ -1,4 +1,4 @@
-service: example
+service: example    ## Must be name of the of project. Lamba Fn names will be prefixed with this value. 
 
 frameworkVersion: '2'
 
@@ -7,19 +7,21 @@ provider:
   runtime: python3.8
   lambdaHashingVersion: 20201221
   role: arn:aws:iam::624733648801:role/Role-serverless-function
+  
+  deploymentPrefix: serverless
   deploymentBucket:
     name: codebuildjuver
-    serverSideEncryption: AES256
-  #deploymentPrefix: serverless/example
-  
+    tags: 
+      project: example
+    
 plugins:
   - serverless-deployment-bucket
-
+  
 package:
   individually: true
   exclude:
     - "**"
-    
+   
 functions:
   inference:
     handler: lambdas/lambda_orchest.inference
@@ -27,10 +29,7 @@ functions:
       - http:
           path: /inference
           method: get
-    package:
-      include:
-        - lambdas/lambda_orchest.py
-          
+               
   lambda-01:
     handler: lambdas/lambda_01.greetings
     package:
@@ -49,8 +48,35 @@ functions:
       include:
         - lambdas/lambda_03.py
 
-  lambda-04:
-    handler: lambdas/lambda_04.greetings
+  lambda-sqs:
+    handler: lambdas/lambda_sqs.greetings
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - exampleServerlessQueue
+              - Arn
     package:
       include:
-        - lambdas/lambda_04.py
+        - lambdas/lambda_sqs.py
+        
+  lambda-sns:
+    handler: lambdas/lambda_sns.greetings
+    events:
+      - sns:
+          arn: !Ref exampleServerlessTopic
+          topicName: exampleServerlessTopicTest
+    package:
+      include:
+        - lambdas/lambda_sns.py
+
+resources:
+  Resources:
+    exampleServerlessQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "exampleServerlessQueueTest"
+    exampleServerlessTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: exampleServerlessTopicTest
