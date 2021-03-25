@@ -33,7 +33,7 @@ functions:
           
     package:
       include:
-        - lambdas/lambda_orchest.py
+        - lambda_orchest.py
         
   lambda-01:
     handler: lambdas/lambda_01.greetings
