@@ -20,7 +20,7 @@ plugins:
 package:
   individually: true
   exclude:
-    - node_modules/**
+    - "**"
    
 functions:
   inference:
