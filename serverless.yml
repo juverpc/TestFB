@@ -32,8 +32,7 @@ functions:
           method: get
           
     package:
-      include:
-        - lambdas/lambda_orchest.py
+      individually: true
         
   lambda-01:
     handler: lambdas/lambda_01.greetings
