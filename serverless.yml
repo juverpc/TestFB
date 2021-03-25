@@ -19,6 +19,7 @@ plugins:
   
 package:
   individually: true
+  excludeDevDependencies: true
   exclude:
     - "**"
    
