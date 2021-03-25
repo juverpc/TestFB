@@ -73,6 +73,20 @@ functions:
     package:
       include:
         - lambdas/lambda_sns.py
+  
+  lambda-kinesis:
+    handler: lambdas/lambda_kinesis.greetings
+    events:
+      - stream:
+          type: kinesis
+          batchSize: 50
+          arn:
+            Fn::GetAtt:
+              - KinesisStream
+              - Arn
+    package:
+      include:
+        - lambdas/lambda_sns.py
 
 resources:
   Resources:
@@ -84,3 +98,8 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: exampleServerlessTopicTest
+    KinesisStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: exampleKinesisStream
+        ShardCount: 1
