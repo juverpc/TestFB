@@ -86,7 +86,7 @@ functions:
               - Arn
     package:
       include:
-        - lambdas/lambda_sns.py
+        - lambdas/lambda_kinesis.py
 
 resources:
   Resources:
